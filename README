@@ -7,3 +7,17 @@ This is a program that simulates the game Boggle using Java, following the CS11 
 (http://courses.cms.caltech.edu/cs11/material/advjava/index.html)
 
 The TestNG testing framework and Apache Ant were used in building the project
+
+----------------------------------------------------------
+
+To build the project, type 'ant' into the bash, which will generate the .class files, test files, and javadoc API documentation. The created files can be found in the created directory build/
+
+The build/ directory will have the following subdirectories after the build script:
+
+*classes/ - this contains the generated .class files
+*tests/ - this contains the compiled test programs
+*results/ - this contains the results of running testng on the test files
+*javadoc/ - this contains the generated API documentation
+
+You can also build them separately by typing in the bash 'ant compile', 'ant test', or 'ant javadoc'. The command 'ant clean' will remove the build directory and all files within in.
+
