@@ -4,6 +4,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import java.rmi.*;
+import java.rmi.registry.Registry;
+import java.rmi.registry.LocateRegistry;
+
 import javax.swing.*;
 
 /**
@@ -31,33 +35,55 @@ public class BoggleClient extends JFrame {
     /** Clears the selected letters from Boggle Board */
     private JButton _clearWord;
 
+    /** Username of client acessing the Boggle Server */
+    private String _username;
+    
+    /** RMI Server being used */
+    private BoggleServer _server;
+
     /**
      * Helper method when start button is pressed. Starts the 
      * new round
      */
     private void newGame() {
-	_startGame.setEnabled(false);
+	try {
+	    _foundWords.clear_words(); // makes sure all fields from previous rounds are empty
 
-	_addWord.setEnabled(true);
-	_clearWord.setEnabled(true);
+	    _board.removeAll();
+	    _board.setBoard(_server.startGame(_username));
+	    
+	    _startGame.setEnabled(false);
+	    
+	    _addWord.setEnabled(true);
+	    _clearWord.setEnabled(true);
 	
-	_timer.startTimer();
-
-	_foundWords.removeAll();
-
-	_board.removeAll();
-	_board.setBoard(new BoggleBoard());
+	    _timer.startTimer();
+	}
+	catch (Exception e) {
+	    System.err.println("Error connected to server: " + e.getMessage());
+	    e.printStackTrace();
+	}
     }
 
     /**
      * Helper method that ends the round
      */
     private void endGame() {
-	_startGame.setEnabled(true);
-	
-	_addWord.setEnabled(false);
-	_clearWord.setEnabled(false);
-	_board.disableBoard();
+	try {
+	    GameResults results = _server.gameOver(_username, _foundWords.getWords());
+	}
+	catch (Exception e) {
+	    System.err.println("Error exiting server: " + e.getMessage());
+	    e.printStackTrace();
+	}
+	finally {
+	    _board.disableBoard();
+	    
+	    _startGame.setEnabled(true);
+	    
+	    _addWord.setEnabled(false);
+	    _clearWord.setEnabled(false);
+	}
     }
 
     /**
@@ -81,7 +107,7 @@ public class BoggleClient extends JFrame {
 		break;
 
 	    case "add":
-		_foundWords.push_back(_board.getWord());
+		_foundWords.add_word(_board.getWord());
 		_board.clearSelections();
 		break;
 
@@ -102,9 +128,13 @@ public class BoggleClient extends JFrame {
     /**
      * Default constructor that creates a frame and initializes class fields 
      */
-    public BoggleClient() {
+    public BoggleClient(String name, BoggleServer s) {
 	super("Boggle!");
 	setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+	// Initializes client username and server being connected to
+	_username = name;
+	_server = s;
 
 	getContentPane().setLayout( new BorderLayout());
 
@@ -113,7 +143,7 @@ public class BoggleClient extends JFrame {
     }
 
     /** 
-     * Paints all the GUI elements of the game 
+     * Paints all the GUI elements of the game. Only supports 4x4 Boggle. 
      */
     private void createAndShowGUI() {
 
@@ -142,6 +172,8 @@ public class BoggleClient extends JFrame {
 	// Boggle Board
 	_board = new JBoggleBoard();
 	_board.setBackground(Color.GRAY);
+	_board.setBoard(new BoggleBoard());
+	_board.disableBoard();
 	centerPanel.add(_board);
 
 	JPanel buttonsPanel = new JPanel();
@@ -194,16 +226,33 @@ public class BoggleClient extends JFrame {
     }
 
     public static void main(String[] args) {
-	javax.swing.SwingUtilities.invokeLater(new Runnable() {
-		public void run() {
-		    BoggleClient boggle = new BoggleClient();
-	
+	String usage = "Usage: java BoggleClient <username> <hostname>";
+	if (args.length < 1 || args.length > 2) {
+	    System.err.println(usage);
+	    System.exit(1);
+	}
+	String username = args[0];
+	String hostname = (args.length == 1) ? null : args[1];
+       
+	try {
+            Registry registry = LocateRegistry.getRegistry(hostname, 1099);
+            BoggleServer stub = (BoggleServer) registry.lookup("BoggleServer");
+	        
+	    javax.swing.SwingUtilities.invokeLater(new Runnable() {
+		    public void run() {
+			BoggleClient boggle = new BoggleClient(username, stub);
+			
 		    boggle.setResizable(false);
 		    
 		    boggle.pack();
 		    boggle.setVisible(true);
-		}
-	    });
+		    }
+		});
+	}
+	catch (Exception e) {
+            System.err.println("Client exception: " + e.toString());
+            e.printStackTrace();
+        }
     }
 
 }

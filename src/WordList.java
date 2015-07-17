@@ -102,7 +102,14 @@ public class WordList {
     public boolean contains(String word) {
 	return words.contains(word);
     }
-    
+ 
+    /**
+     * Clears all words in the list
+     */
+    public void clear() {
+	words.clear();
+    }
+
     /**
      * Function that adds all new words from another word list
      *

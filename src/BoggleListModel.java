@@ -14,28 +14,33 @@ import javax.swing.*;
  */
 public class BoggleListModel extends AbstractListModel {
     /** Acts as a dictionary of all possible words */
-    private WordList _list;
-    
+    private static WordList _dictionary;
+    static {
+	try {
+	    _dictionary = WordList.loadFromGZipFile("/Users/joeyhong/java/advlabs/boggle/res/sowpods.txt.gz");
+	}
+	catch (IOException e) {
+	    System.err.println("Error - Couldn't read file");
+	    System.exit(1);
+	} 
+    }
+
     /** Saves previous size of the list */
     private int _size; // keeps track of the size of _listModel before change to fire actions
 
-    /** List that stores all the user's found words */
-    private ArrayList<String> _listModel;
+    /** Set that stores all the user's found words */
+    private WordList _found;
     
+    /** List to be used to communicate with JList */
+    private ArrayList<String> _listModel;
+
     /**
      * Default constructor reads in all words from a file
      */
     public BoggleListModel() {
-	try {
-	    _list = WordList.loadFromGZipFile("/Users/joeyhong/java/advlabs/boggle/res/sowpods.txt.gz");
-	    
-	    _listModel = new ArrayList<String>();
-	    _size = 0;
-	    
-	} catch (IOException e) {
-	    System.err.println("Error - Couldn't read file");
-	    System.exit(1);
-	} 
+	_found = new WordList();
+	_listModel = new ArrayList<String>();
+	_size = 0;
     }
 
     /**
@@ -44,9 +49,10 @@ public class BoggleListModel extends AbstractListModel {
      *
      * @param word String to be added into list
      */
-    public void push_back(String word) {
+    public void add_word(String word) {
 	if (word.length() >= 3) {
-	    if (_list.contains(word) && !_listModel.contains(word)) {
+	    if (_dictionary.contains(word) && !_found.contains(word)) {
+		_found.add(word);
 		_listModel.add(word);
 	     
 		fireIntervalAdded(this, _size, _size);
@@ -58,15 +64,25 @@ public class BoggleListModel extends AbstractListModel {
     /**
      * Clears the list of all words, and notifies the event listeners
      */
-    public void removeAll() {
-	if (_listModel.size() != 0) {
+    public void clear_words() {
+	if (_found.size() != 0) {
+	    _found.clear();
 	    _listModel.clear();
 	    
 	    fireIntervalRemoved(this, 0, _size - 1);
 	    _size = 0;
 	}
     }
-    
+
+    /**
+     * Returns the set of found words at end of round
+     *
+     * @return Wordlist containing all the user's found words
+     */
+    public WordList getWords() {
+	return _found;
+    }
+
     /**
      * Overriden method that returns the size of the list
      *
