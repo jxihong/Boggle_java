@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="Test Suite">
+   <test name="Test Boggle Classes">
+    <classes>
+      <class name="TestBoggleBoard" />
+      <class name="TestWordList" />
+    </classes>
+  </test>
+</suite>

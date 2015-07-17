@@ -1,0 +1,16 @@
+# Compiled Files
+build/classes/
+build/tests/
+
+# Backup Files
+*~
+
+.DS_Store
+
+# Test Results
+build/results/
+
+# Javadoc
+build/javadoc
+
+
