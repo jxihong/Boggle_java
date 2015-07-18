@@ -250,6 +250,7 @@ public class BoggleServerApp implements BoggleServer {
     // Return the BoggleBoard for this round's players to use.
 
     System.out.println("Client \"" + clientName + "\" is playing this round.");
+
     return boggleBoard;
   }
 
@@ -304,7 +305,7 @@ public class BoggleServerApp implements BoggleServer {
     synchronized (clients) {
       clients.remove(clientName);
     }
-
+    
     return gameResults;
   }
 

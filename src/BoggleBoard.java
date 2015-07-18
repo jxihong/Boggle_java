@@ -1,4 +1,5 @@
 import java.util.*;
+import java.io.Serializable;
 
 /**
  * A class to represent the actual Boggle Board of size NxN, with randomly generated
@@ -6,7 +7,7 @@ import java.util.*;
  *
  * @author Joey Hong
  */
-public class BoggleBoard {
+public class BoggleBoard implements Serializable{
    
     /** Hashmap of letter distribution, based on the Boggle-clone Loggle */
     private static final Map<String,Integer> letterDistribution 

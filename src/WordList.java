@@ -1,13 +1,14 @@
 import java.util.*;
 import java.io.*;
 import java.util.zip.*;
+import java.io.Serializable;
 
 /**
  * A class to represent a list of possible words for Boggle
  *
  * @author Joey Hong
  */
-public class WordList {
+public class WordList implements Serializable{
     
     /**
      * A set to store words
@@ -24,9 +25,9 @@ public class WordList {
     private String preprocess(String word) {
 	return word.trim().toLowerCase();
     }
-
+    
     /**
-     * Constructor that creates an empty set of words
+     * Default constructor that initializes an empty set    
      */
     public WordList() {
 	words = new HashSet<String>();
@@ -109,7 +110,14 @@ public class WordList {
     public void clear() {
 	words.clear();
     }
-
+    
+    /**
+     * Returns the set of all words
+     */ 
+    public Set<String> dump() {
+	return words;
+    }
+	
     /**
      * Function that adds all new words from another word list
      *

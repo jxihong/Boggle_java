@@ -47,7 +47,7 @@ public class BoggleClient extends JFrame {
      */
     private void newGame() {
 	try {
-	    _foundWords.clear_words(); // makes sure all fields from previous rounds are empty
+	    _foundWords.clear_words();
 
 	    _board.removeAll();
 	    _board.setBoard(_server.startGame(_username));
@@ -70,7 +70,13 @@ public class BoggleClient extends JFrame {
      */
     private void endGame() {
 	try {
-	    GameResults results = _server.gameOver(_username, _foundWords.getWords());
+	    GameResults finalResults = _server.gameOver(_username, _foundWords.getWords());
+	    
+	    // displays the user's score for the round
+	    ClientInfo playerResults = finalResults.getClientResult(_username);
+	    JOptionPane.showMessageDialog(null, 
+					  "You scored " + playerResults.getScore() +  " points.",
+					  "Your Score", JOptionPane.PLAIN_MESSAGE);
 	}
 	catch (Exception e) {
 	    System.err.println("Error exiting server: " + e.getMessage());
@@ -163,7 +169,7 @@ public class BoggleClient extends JFrame {
 
 	// Boggle Timer
 	_timer = new JBoggleTimer();
-	_timer.setTimeRemaining(3*60); // timer goes for 3 minutes
+	_timer.setTimeRemaining(3 * 10); // timer goes for 3 minutes
 
 	_timer.setActionCommand("end");
 	_timer.addActionListener(handler);
