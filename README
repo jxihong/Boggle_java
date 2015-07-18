@@ -1,4 +1,4 @@
-Java Boggle Game
+Java Networked-Boggle Game
 ===================================
 
 Written By: Joey Hong
@@ -21,3 +21,14 @@ The build/ directory will have the following subdirectories after the build scri
 
 You can also build them separately by typing in the bash 'ant compile', 'ant test', or 'ant javadoc'. The command 'ant clean' will remove the build directory and all files within in.
 
+-----------------------------------------------------------
+
+To play the game, you must first run the Boggle server with:
+   
+java BoggleServerApp
+
+Then, to log into the server as a client, type into the bash:
+
+java BoggleClient <username> <hostname>*
+
+where the hostname defaults to localhost. Once over 2 users log into the server, the server will wait 15 seconds before starting the game.
