@@ -3,6 +3,7 @@ import java.io.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.concurrent.ExecutionException;
 
 import java.rmi.*;
 import java.rmi.registry.Registry;
@@ -40,29 +41,65 @@ public class BoggleClient extends JFrame {
     
     /** RMI Server being used */
     private BoggleServer _server;
+    
+    /** Dialog-object that displays when waiting to join new game */
+    private JStartDialog _startDialog;
+
+    /**
+     * Allows for swing multithreading so UI doesn't freeze when starting
+     * new game.
+     *
+     * @author Joey Hong
+     */
+    private class StartGameWorker extends SwingWorker<BoggleBoard, Object> {
+	
+	/** Empty default constructor */
+	public StartGameWorker() {           
+	}
+	
+	@Override protected BoggleBoard doInBackground() 
+	    throws PlayerException, RemoteException {
+	    
+	    return _server.startGame(_username);
+	}
+
+	@Override protected void done() {
+	    try {
+		_startDialog.dispose();
+		_board.setBoard(get());
+		
+		_startGame.setEnabled(false);
+		
+		_addWord.setEnabled(true);
+		_clearWord.setEnabled(true);
+		
+		_timer.startTimer();
+	    }
+	    catch(Exception e) {
+		JOptionPane.showMessageDialog(null, 
+					      "Error connecting to server:\n" + e.getCause(),					      
+					      "Server Error", JOptionPane.ERROR_MESSAGE);
+		_startGame.setEnabled(true);
+	    }
+	}
+	
+    }
 
     /**
      * Helper method when start button is pressed. Starts the 
      * new round
      */
     private void newGame() {
-	try {
-	    _foundWords.clear_words();
-
-	    _board.removeAll();
-	    _board.setBoard(_server.startGame(_username));
-	    
-	    _startGame.setEnabled(false);
-	    
-	    _addWord.setEnabled(true);
-	    _clearWord.setEnabled(true);
+	_foundWords.clear_words();
+	_board.removeAll();
 	
-	    _timer.startTimer();
-	}
-	catch (Exception e) {
-	    System.err.println("Error connected to server: " + e.getMessage());
-	    e.printStackTrace();
-	}
+	// creates a SwingWorker that connects to server 
+	StartGameWorker startWorker = new StartGameWorker();
+	startWorker.execute();    
+	
+	_startDialog = new JStartDialog(this);
+	_startDialog.setVisible(true);
+	
     }
 
     /**
@@ -71,16 +108,15 @@ public class BoggleClient extends JFrame {
     private void endGame() {
 	try {
 	    GameResults finalResults = _server.gameOver(_username, _foundWords.getWords());
-	    
-	    // displays the user's score for the round
-	    ClientInfo playerResults = finalResults.getClientResult(_username);
-	    JOptionPane.showMessageDialog(null, 
-					  "You scored " + playerResults.getScore() +  " points.",
-					  "Your Score", JOptionPane.PLAIN_MESSAGE);
+	
+	    JGameResultsDialog results = new JGameResultsDialog(finalResults, this, true);
+	    results.setVisible(true);
 	}
 	catch (Exception e) {
-	    System.err.println("Error exiting server: " + e.getMessage());
-	    e.printStackTrace();
+	    JOptionPane.showMessageDialog(null, 
+					  "Error exiting server:\n" + e.getCause(),					      
+					  "Server Error", JOptionPane.ERROR_MESSAGE);
+
 	}
 	finally {
 	    _board.disableBoard();
@@ -145,6 +181,7 @@ public class BoggleClient extends JFrame {
 	getContentPane().setLayout( new BorderLayout());
 
 	_foundWords = new BoggleListModel(); // initialized to empty list
+
 	createAndShowGUI();
     }
 
@@ -154,7 +191,7 @@ public class BoggleClient extends JFrame {
     private void createAndShowGUI() {
 
 	BoggleHandler handler = new BoggleHandler();
-
+	
 	// Start button
 	_startGame = new JButton("Start Game");
 	_startGame.setFont(FONT);

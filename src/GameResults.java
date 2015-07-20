@@ -58,9 +58,11 @@ public class GameResults implements Serializable {
 	    WordList playerUniqueWords = playerInfo.getWords();
 	    playerUniqueWords.subtract(otherList);
 	    
-	    int playerScore = 0;
-	    for (String word: playerUniqueWords.dump()) {
-		switch(word.length()) {
+	    int playerScore = 0; // keeps track of the player's score
+	    
+	    Iterator<String> iter = playerUniqueWords.iterator();
+	    while (iter.hasNext()) {
+		switch(iter.next().length()) {
 		case 3: case 4: 
 		    playerScore += 1;
 		    break;

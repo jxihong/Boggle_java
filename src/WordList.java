@@ -8,7 +8,7 @@ import java.io.Serializable;
  *
  * @author Joey Hong
  */
-public class WordList implements Serializable{
+public class WordList implements Serializable, Iterable{
     
     /**
      * A set to store words
@@ -33,6 +33,14 @@ public class WordList implements Serializable{
 	words = new HashSet<String>();
     }
 
+    /**
+     * Copy constructor
+     */
+    public WordList(WordList list) {
+	words = new HashSet<String>();
+	words.addAll(list.words);
+    }
+	
     /**
      * Constructor that reads a file with a word on each line, and adds 
      those words to the  word list
@@ -111,11 +119,11 @@ public class WordList implements Serializable{
 	words.clear();
     }
     
-    /**
-     * Returns the set of all words
+    /** 
+     * Returns an iterator through the WordList
      */ 
-    public Set<String> dump() {
-	return words;
+    public Iterator<String> iterator() {
+	return words.iterator();
     }
 	
     /**
