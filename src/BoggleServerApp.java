@@ -4,6 +4,9 @@ import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+
 /**
  * This is a very simplistic implementation of a Boggle server that can handle
  * multiple requests from Boggle clients wanting to play a round of Boggle.
@@ -65,7 +68,9 @@ public class BoggleServerApp implements BoggleServer {
    **/
   private GameResults gameResults;
 
-
+  /** Logger for the Boggle server */
+  private static final Logger logger = Logger.getLogger("boggle.server");
+    
   /**
    * This is the internal thread that runs the Boggle server.  It is started
    * by the <tt>BoggleServerApp</tt> constructor, and it encodes the flow of
@@ -88,8 +93,7 @@ public class BoggleServerApp implements BoggleServer {
      * The minimum number of players we must have to play a round of Boggle.
      **/
     private static final int MIN_PLAYERS = 2;
-
-
+      
     /**
      * This is the method run by the Boggle server thread.  It follows a very
      * simple sequence of operations, although the actual implementation details
@@ -219,7 +223,7 @@ public class BoggleServerApp implements BoggleServer {
    *         already used.
    **/
   public BoggleBoard startGame(String clientName) throws PlayerException {
-    System.out.println("Client \"" + clientName + "\" wants to start a game.");
+    logger.info("Client \"" + clientName + "\" wants to start a game.");
 
     ClientInfo myInfo = new ClientInfo(clientName);
 
@@ -249,7 +253,9 @@ public class BoggleServerApp implements BoggleServer {
     // Once we get here, we are ready to start playing.
     // Return the BoggleBoard for this round's players to use.
 
-    System.out.println("Client \"" + clientName + "\" is playing this round.");
+    if (logger.isInfoEnabled()) {
+	logger.info("Client \"" + clientName + "\" is playing this round.");
+    }
 
     return boggleBoard;
   }
@@ -279,9 +285,10 @@ public class BoggleServerApp implements BoggleServer {
       if (myInfo == null)
         throw new PlayerException(clientName + " is unrecognized!");
     }
-
-    System.out.println("Client \"" + clientName +
-      "\" has submitted a word-list of " + myWords.size() + " words.");
+    if (logger.isInfoEnabled()) {
+	logger.info("Client \"" + clientName +
+		    "\" has submitted a word-list of " + myWords.size() + " words.");
+    }
 
     myInfo.setWords(myWords);
 
@@ -323,10 +330,13 @@ public class BoggleServerApp implements BoggleServer {
 	  Registry registry = LocateRegistry.createRegistry(1099);
 	  registry.rebind("BoggleServer", stub);
 	  
-	  System.out.println("Boggle server is ready.");
+	  PropertyConfigurator.configure("logging.props");
+	  if (logger.isInfoEnabled()) {
+	      logger.info("Boggle server is ready.");
+	  }
       }
       catch (Exception e) {
-	  System.err.println("Server exception: " + e.getMessage());
+	  logger.fatal("Server exception: " + e.getMessage());
 	  e.printStackTrace();
       }
   }

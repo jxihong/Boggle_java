@@ -25,7 +25,7 @@
   -->
   <path id="libs.path">
     <fileset dir="${libDir}">
-      <!-- No files to include for now. -->
+      <include name="log4j-1.2.13.jar" />
     </fileset>
   </path>
 
@@ -40,7 +40,8 @@
     <pathelement location="${buildClassesDir}" />
 
     <fileset dir="${libDir}">
-      <include name="*.jar" />
+      <include name="jcommander-1.48.jar" />
+      <include name="testng-6.3.1.jar" />
     </fileset>
   </path>
 

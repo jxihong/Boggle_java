@@ -6,7 +6,7 @@ Written By: Joey Hong
 This is a program that simulates the game Boggle using Java, following the CS11 Advanced Java Track
 (http://courses.cms.caltech.edu/cs11/material/advjava/index.html)
 
-The TestNG testing framework and Apache Ant were used in building the project
+The TestNG testing framework, Log4j logging, and Apache Ant were used in building the project
 
 ----------------------------------------------------------
 
